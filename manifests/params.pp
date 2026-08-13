@@ -497,6 +497,21 @@ class zabbix::params {
     default  => 'apache',
   }
 
+  # puppetlabs/apache only knows the mod_php package name for the Debian and
+  # Ubuntu releases it supports itself and silently falls back to PHP 7.2 for
+  # anything newer. Provide the correct version for the releases it doesn't
+  # know yet so that zabbix::web keeps working; undef means "use whatever
+  # puppetlabs/apache picks".
+  if $facts['os']['name'] == 'Ubuntu' {
+    $php_version = $facts['os']['release']['major'] ? {
+      '24.04' => '8.3',
+      '26.04' => '8.5',
+      default => undef,
+    }
+  } else {
+    $php_version = undef
+  }
+
   $_web_config_owner = getvar('::apache::user')
   if $_web_config_owner {
     if $_web_config_owner =~ /^\S+$/ {

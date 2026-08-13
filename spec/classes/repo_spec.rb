@@ -20,8 +20,22 @@ describe 'zabbix::repo' do
         it { is_expected.to contain_class('zabbix::params') }
         it { is_expected.to contain_class('zabbix::repo') }
 
-        it { is_expected.to contain_apt__key('zabbix-A1848F5') } if facts[:os]['family'] == 'Debian'
-        it { is_expected.to contain_apt__key('zabbix-FBABD5F') } if facts[:os]['family'] == 'Debian'
+        it { is_expected.to contain_apt__keyring('zabbix-official-repo.asc').with_source('https://repo.zabbix.com/zabbix-official-repo.key') }
+        it { is_expected.to contain_apt__source('zabbix').with_key({ 'name' => 'zabbix-official-repo.asc', 'source' => 'https://repo.zabbix.com/zabbix-official-repo.key' }) }
+        it { is_expected.not_to contain_apt__key('zabbix-A1848F5') }
+        it { is_expected.to contain_apt__source('zabbix').with_release(facts[:os]['distro']['codename']) }
+
+        it { is_expected.to contain_apt__source('zabbix').with_location("http://repo.zabbix.com/zabbix/6.0/#{facts[:os]['name'].downcase}/") } unless facts[:os]['name'] == 'Raspbian'
+
+        context 'when repo_gpg_key_location is "https://example.com/bar"' do
+          let :params do
+            {
+              repo_gpg_key_location: 'https://example.com/bar'
+            }
+          end
+
+          it { is_expected.to contain_apt__keyring('zabbix-official-repo.asc').with_source('https://example.com/bar/zabbix-official-repo.key') }
+        end
 
         context 'when repo_location is "https://example.com/foo"' do
           let :params do
