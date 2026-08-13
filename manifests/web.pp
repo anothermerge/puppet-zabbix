@@ -67,6 +67,10 @@
 # @param apache_php_max_input_time Max input time for php. Default: 300
 # @param apache_php_always_populate_raw_post_data Default: -1
 # @param apache_php_max_input_vars Max amount of vars for GET/POST requests
+# @param php_version
+#   The mod_php version to install, e.g. '8.3'. When undef, the default of
+#   puppetlabs/apache is used. Only relevant on Debian based systems, as
+#   RedHat based systems use php-fpm.
 # @param ldap_cacert Set location of ca_cert used by LDAP authentication.
 # @param ldap_clientcert Set location of client cert used by LDAP authentication.
 # @param ldap_clientkey Set location of client key used by LDAP authentication.
@@ -135,6 +139,7 @@ class zabbix::web (
   $apache_php_max_input_time                                          = $zabbix::params::apache_php_max_input_time,
   $apache_php_always_populate_raw_post_data                           = $zabbix::params::apache_php_always_populate_raw_post_data,
   $apache_php_max_input_vars                                          = $zabbix::params::apache_php_max_input_vars,
+  Optional[String[1]] $php_version                                    = $zabbix::params::php_version,
   Optional[Stdlib::Absolutepath] $ldap_cacert                         = $zabbix::params::ldap_cacert,
   Optional[Stdlib::Absolutepath] $ldap_clientcert                     = $zabbix::params::ldap_clientcert,
   Optional[Stdlib::Absolutepath] $ldap_clientkey                      = $zabbix::params::ldap_clientkey,
@@ -297,7 +302,13 @@ class zabbix::web (
       }
     }
     else {
-      include apache::mod::php
+      if $php_version and !defined(Class['apache::mod::php']) {
+        class { 'apache::mod::php':
+          php_version => $php_version,
+        }
+      } else {
+        include apache::mod::php
+      }
 
       $apache_vhost_custom_fragments = "${apache_vhost_custom_fragment}
         php_value max_execution_time ${apache_php_max_execution_time}

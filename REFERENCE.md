@@ -5094,6 +5094,7 @@ The following parameters are available in the `zabbix::web` class:
 * [`apache_php_max_input_time`](#-zabbix--web--apache_php_max_input_time)
 * [`apache_php_always_populate_raw_post_data`](#-zabbix--web--apache_php_always_populate_raw_post_data)
 * [`apache_php_max_input_vars`](#-zabbix--web--apache_php_max_input_vars)
+* [`php_version`](#-zabbix--web--php_version)
 * [`ldap_cacert`](#-zabbix--web--ldap_cacert)
 * [`ldap_clientcert`](#-zabbix--web--ldap_clientcert)
 * [`ldap_clientkey`](#-zabbix--web--ldap_clientkey)
@@ -5450,6 +5451,16 @@ Data type: `Any`
 Max amount of vars for GET/POST requests
 
 Default value: `$zabbix::params::apache_php_max_input_vars`
+
+##### <a name="-zabbix--web--php_version"></a>`php_version`
+
+Data type: `Optional[String[1]]`
+
+The mod_php version to install, e.g. '8.3'. When undef, the default of
+puppetlabs/apache is used. Only relevant on Debian based systems, as
+RedHat based systems use php-fpm.
+
+Default value: `$zabbix::params::php_version`
 
 ##### <a name="-zabbix--web--ldap_cacert"></a>`ldap_cacert`
 
